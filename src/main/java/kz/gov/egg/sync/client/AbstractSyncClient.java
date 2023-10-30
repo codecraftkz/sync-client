@@ -82,7 +82,13 @@ public abstract class AbstractSyncClient implements EggSyncClient {
         var messageRequest = buildMessageRequest(requestData);
         var messageResponse = sendMessage(messageRequest);
         var data = messageResponse.getResponseData().getData();
-        return EggUtils.nodeToString((Node) data);
+        if (data instanceof Node) {
+            return EggUtils.nodeToString((Node) data);
+        } else if (data instanceof String) {
+            return (String) data;
+        } else {
+            throw new IllegalArgumentException("Unexpected type: " + data.getClass());
+        }
     }
 
 }

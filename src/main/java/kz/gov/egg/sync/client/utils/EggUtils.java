@@ -1,8 +1,10 @@
 package kz.gov.egg.sync.client.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,6 +21,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.xml.security.parser.XMLParserException;
+import org.apache.xml.security.utils.XMLUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import jakarta.xml.bind.JAXBContext;
@@ -70,6 +75,14 @@ public class EggUtils {
         }
     }
 
+    public static Document parseXmlString(String xml) {
+        try {
+            return XMLUtils.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), true);
+         } catch (XMLParserException e) {
+            throw new IllegalArgumentException("XML-string not parsed.", e);
+        }
+    }
+    
     public static String nodeToString(Node node) {
         try (var sw = new StringWriter()) {
             var source = new DOMSource(node);

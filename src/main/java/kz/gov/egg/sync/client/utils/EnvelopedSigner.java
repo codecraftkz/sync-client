@@ -1,6 +1,5 @@
 package kz.gov.egg.sync.client.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -13,15 +12,10 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.transforms.Transforms;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import kz.gov.egg.sync.client.SignConfig;
 import kz.gov.pki.kalkan.asn1.knca.KNCAObjectIdentifiers;
@@ -45,18 +39,9 @@ public class EnvelopedSigner {
         }
     }
 
-    private Document parse(String xml) throws ParserConfigurationException, SAXException, IOException {
-        var dbf = DocumentBuilderFactory.newInstance();
-        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        dbf.setNamespaceAware(true);
-        var documentBuilder = dbf.newDocumentBuilder();
-        var document = documentBuilder.parse(new ByteArrayInputStream(xml.getBytes()));
-        return document;
-    }
-
     public String sign(String xml) {
         try (var os = new StringWriter()) {
-            var document = parse(xml);
+            var document = EggUtils.parseXmlString(xml);
             String signMethod;
             String digestMethod;
 
@@ -84,14 +69,14 @@ public class EnvelopedSigner {
             xmlSignature.sign(key);
 
             return EggUtils.nodeToString(document.getFirstChild());
-        } catch (IOException | ParserConfigurationException | SAXException | XMLSecurityException e) {
+        } catch (IOException | XMLSecurityException e) {
             throw new IllegalStateException("Enveloped xml signature failed.", e);
         }
     }
 
     public boolean verify(String xml) {
         try {
-            var doc = parse(xml);
+            var doc = EggUtils.parseXmlString(xml);
             var rootEl = (Element) doc.getFirstChild();
             var list = rootEl.getElementsByTagName("ds:Signature");
             if (list.getLength() == 0) {
@@ -106,7 +91,7 @@ public class EnvelopedSigner {
                 throw new IllegalStateException("Certificate not found in XML");
             }
             return signature.checkSignatureValue(cert);
-        } catch (IOException | ParserConfigurationException | SAXException | XMLSecurityException e) {
+        } catch (XMLSecurityException e) {
             throw new RuntimeException("Enveloped xml verification failed.", e);
         }
     }

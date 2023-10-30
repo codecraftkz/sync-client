@@ -34,8 +34,20 @@ public class InInterceptor extends AbstractSoapInterceptor {
             if (node == null) {
                 throw new XMLFault("<data> not found.");
             }
-            var dataXml = EggUtils.nodeToString(node);
+            var type = node.getAttribute("xsi:type");
+            String dataXml;
+            if ("xs:string".equals(type)) {
+                var nodes = node.getChildNodes();
+                var textBuilder = new StringBuilder();
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    textBuilder.append(nodes.item(i).getTextContent());
+                }
+                dataXml = textBuilder.toString();
+            } else {
+                dataXml = EggUtils.nodeToString(node);
+            }
             log.debug("Essential data:\n{}", dataXml);
+
             if (!envelopedSigner.verify(dataXml)) {
                 throw new XMLFault("<data> has invalid signature.");
             }
