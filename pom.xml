@@ -55,7 +55,7 @@
         <dependency>
             <groupId>kz.gov.pki.kalkan</groupId>
             <artifactId>jsr105</artifactId>
-            <version>1.2</version>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>kz.gov.services.gbd</groupId>
