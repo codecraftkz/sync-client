@@ -17,7 +17,27 @@
 [xmldsig](https://github.com/pkigovkz/xmldsig)
 
 #### Releases
-[Yandex.Disk 🫠](https://disk.yandex.ru/d/SgOUWC7KcdfLew)
+Azure Artifacts
+```
+<repository>
+  <id>azure-as1an</id>
+  <url>https://pkgs.dev.azure.com/as1an/public/_packaging/repo/maven/v1</url>
+  <releases>
+    <enabled>true</enabled>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
+```
+Dependency
+```
+<dependency>
+  <groupId>kz.gov.egg</groupId>
+  <artifactId>sync-client</artifactId>
+  <version>0.1-SNAPSHOT</version>
+</dependency>
+```
 
 #### Usage
 [Example](https://gist.github.com/as1an/cc57c2d3763cb60b7fe86ee50ef934fd)
