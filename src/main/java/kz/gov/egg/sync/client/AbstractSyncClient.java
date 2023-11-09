@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.w3c.dom.Node;
 
@@ -35,8 +35,8 @@ public abstract class AbstractSyncClient implements EggSyncClient {
         wsFactory.setAddress(wsAddress);
         WSS4JOutInterceptor outInterceptor = new WSS4JOutInterceptor(signConfig.getOutInterceptorProperties());
         wsFactory.setOutInterceptors(Arrays.asList(outInterceptor));
-        // TODO: Add WSS4JInInterceptor
-        wsFactory.setInInterceptors(Arrays.asList(new SAAJInInterceptor(), new InInterceptor(signConfig)));
+        wsFactory.setInInterceptors(Arrays.asList(new WSS4JInInterceptor(signConfig.getInInterceptorProperties()),
+                new InInterceptor(signConfig)));
         this.requestParams = Collections.unmodifiableMap(requestParams);
         this.signConfig = signConfig;
         envelopedSigner = new EnvelopedSigner(signConfig);
