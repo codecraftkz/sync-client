@@ -67,7 +67,7 @@ public abstract class AbstractSyncClient implements EggSyncClient {
 
         var requestInfo = new SyncMessageInfo();
         requestInfo.setMessageId(requestParams.get("messageId"));
-        requestInfo.setMessageDate(EggUtils.toXmlDateTime(null));
+        requestInfo.setMessageDate(EggUtils.obtainCurrentXmlDateTime());
         requestInfo.setServiceId(requestParams.get("serviceId"));
         requestInfo.setSender(senderInfo);
 
@@ -79,8 +79,7 @@ public abstract class AbstractSyncClient implements EggSyncClient {
     }
 
     public String fetchResponseData(RequestData requestData) {
-        var messageRequest = buildMessageRequest(requestData);
-        var messageResponse = sendMessage(messageRequest);
+        var messageResponse = fetchMessageResponse(requestData);
         var data = messageResponse.getResponseData().getData();
         if (data instanceof Node) {
             return EggUtils.nodeToString((Node) data);
@@ -89,6 +88,11 @@ public abstract class AbstractSyncClient implements EggSyncClient {
         } else {
             throw new IllegalArgumentException("Unexpected type: " + data.getClass());
         }
+    }
+
+    public SyncSendMessageResponse fetchMessageResponse(RequestData requestData) {
+        var messageRequest = buildMessageRequest(requestData);
+        return sendMessage(messageRequest);
     }
 
 }

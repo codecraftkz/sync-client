@@ -21,11 +21,14 @@ import kz.gov.egg.sync.client.SignConfig;
 import kz.gov.pki.kalkan.asn1.knca.KNCAObjectIdentifiers;
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.xmldsig.DsigConstants;
+import lombok.Getter;
 
 public class EnvelopedSigner {
 
     private PrivateKey key;
     private X509Certificate cert;
+    @Getter
+    private X509Certificate verifyCert;
 
     public EnvelopedSigner(SignConfig signConfig) {
         try {
@@ -86,8 +89,8 @@ public class EnvelopedSigner {
             var sigElement = (Element) sigNode;
             XMLSignature signature = new XMLSignature(sigElement, "");
             var keyInfo = signature.getKeyInfo();
-            X509Certificate cert = keyInfo.getX509Certificate();
-            if (cert == null) {
+            verifyCert = keyInfo.getX509Certificate();
+            if (verifyCert == null) {
                 throw new IllegalStateException("Certificate not found in XML");
             }
             return signature.checkSignatureValue(cert);

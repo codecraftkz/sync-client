@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>kz.gov.egg</groupId>
     <artifactId>sync-client</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>E-gov Gateway Client</name>
 
     <properties>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.11</version>
+            <version>1.5.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

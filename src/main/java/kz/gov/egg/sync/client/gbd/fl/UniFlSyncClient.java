@@ -21,7 +21,7 @@ public final class UniFlSyncClient extends AbstractSyncClient {
         var request = new Request();
         request.setMessageId(requestParams.get("messageId"));
         request.setIin(iin);
-        request.setMessageDate(EggUtils.toXmlDateTime(null));
+        request.setMessageDate(EggUtils.obtainCurrentXmlDateTime());
         request.setSenderCode(requestParams.get("senderCode"));
 
         var requestData = new RequestData();

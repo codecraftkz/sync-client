@@ -22,7 +22,7 @@ public final class BinUlSyncClient extends AbstractSyncClient {
         var request = new Request();
         request.setRequestorBIN(requestParams.get("RequestorBIN"));
         request.setBIN(bin);
-        var xml = EggUtils.marshal(Request.class, request, "http://gbdulinfobybin_v2.egp.gbdul.tamur.kz");
+        var xml = EggUtils.marshal("http://gbdulinfobybin_v2.egp.gbdul.tamur.kz", request, Request.class);
         var signedXml = envelopedSigner.sign(xml);
 
         var requestData = new RequestData();

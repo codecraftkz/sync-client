@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.Objects;
 
 import javax.xml.XMLConstants;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -14,7 +15,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -30,44 +30,62 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class EggUtils {
 
-    public static XMLGregorianCalendar toXmlDateTime(LocalDateTime dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+06:00'");
-        String xmlDateTime;
+    public static XMLGregorianCalendar toXmlDateTime(OffsetDateTime dateTime) {
         if (dateTime == null) {
-            xmlDateTime = formatter.format(LocalDateTime.now());
-        } else {
-            xmlDateTime = formatter.format(dateTime);
+            dateTime = OffsetDateTime.now();
         }
         try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDateTime);
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(dateTime.toString());
         } catch (DatatypeConfigurationException e) {
             throw new IllegalArgumentException("Failed to parse as XML datetime.");
         }
     }
 
+    public static XMLGregorianCalendar obtainCurrentXmlDateTime() {
+        return toXmlDateTime(null);
+    }
+    
+    @Deprecated
+    /**
+     * @deprecated Use {@link #marshal(String, Object, Class...)} instead.
+     */
     public static String marshal(Class c, Object o, String qname) {
-        try (StringWriter sw = new StringWriter()) {
-            JAXBContext ctx = JAXBContext.newInstance(c);
-            Marshaller marshaller = ctx.createMarshaller();
+        return marshal(qname, o, c);
+    }
+
+    public static String marshal(String qname, Object o, Class... c) {
+        try (var sw = new StringWriter()) {
+            if (Arrays.stream(c).anyMatch(Objects::isNull) || Objects.isNull(o)) {
+                throw new IllegalArgumentException("JAXB classes or object not provided");
+            }
+            var ctx = JAXBContext.newInstance(c);
+            var marshaller = ctx.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            JAXBElement<Object> el = new JAXBElement<Object>(new QName(qname, c.getSimpleName()), c, o);
+            var elementName = c[0].getSimpleName();
+            if (c[0].getAnnotation(XmlRootElement.class) != null) {
+                var xmlRoot = (XmlRootElement) c[0].getAnnotation(XmlRootElement.class);
+                elementName = xmlRoot.name();
+            }
+            var el = new JAXBElement<Object>(new QName(qname, elementName), c[0], o);
             marshaller.marshal(el, sw);
             return sw.toString();
         } catch (IOException | JAXBException e) {
+            e.printStackTrace();
             throw new IllegalStateException(o.getClass() + " marshalling failed.");
         }
     }
 
+
     public static <T> T unmarshal(Class<T> c, String xml) {
         try {
-            JAXBContext ctx = JAXBContext.newInstance(c);
-            Unmarshaller unmarshaller = ctx.createUnmarshaller();
+            var ctx = JAXBContext.newInstance(c);
+            var unmarshaller = ctx.createUnmarshaller();
             JAXBElement<T> element = unmarshaller.unmarshal(new StreamSource(new StringReader(xml)), c);
             return element.getValue();
         } catch (JAXBException e) {
@@ -88,7 +106,7 @@ public class EggUtils {
             var source = new DOMSource(node);
             var result = new StreamResult(sw);
 
-            TransformerFactory transFactory = TransformerFactory.newInstance();
+            var transFactory = TransformerFactory.newInstance();
             transFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             try {
                 transFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
@@ -97,7 +115,7 @@ public class EggUtils {
                 // ignore
             }
 
-            Transformer transformer = transFactory.newTransformer();
+            var transformer = transFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformer.transform(source, result);
             return sw.toString();

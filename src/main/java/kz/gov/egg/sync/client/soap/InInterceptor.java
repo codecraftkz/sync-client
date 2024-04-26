@@ -18,10 +18,16 @@ import lombok.extern.slf4j.Slf4j;
 public class InInterceptor extends AbstractSoapInterceptor {
 
     private EnvelopedSigner envelopedSigner;
+    private boolean dataSigned;
 
     public InInterceptor(SignConfig signConfig) {
+        this(signConfig, true);
+    }
+
+    public InInterceptor(SignConfig signConfig, boolean isDataSigned) {
         super(Phase.POST_PROTOCOL);
         addAfter("org.apache.cxf.binding.soap.saaj.SAAJInInterceptor");
+        dataSigned = isDataSigned;
         envelopedSigner = new EnvelopedSigner(signConfig);
     }
 
@@ -30,7 +36,12 @@ public class InInterceptor extends AbstractSoapInterceptor {
         var msg = message.getContent(SOAPMessage.class);
         try {
             var envelope = msg.getSOAPBody().getFirstChild();
-            var node = XMLUtils.findElement(envelope, "data", null);
+            var responseData = XMLUtils.findElement(envelope, "responseData", null);
+            if (responseData.getChildNodes().getLength() == 0) {
+                log.debug("<responseData> is empty.");
+                return;
+            }
+            var node = XMLUtils.findElement(responseData, "data", null);
             if (node == null) {
                 throw new XMLFault("<data> not found.");
             }
@@ -48,7 +59,7 @@ public class InInterceptor extends AbstractSoapInterceptor {
             }
             log.debug("Essential data:\n{}", dataXml);
 
-            if (!envelopedSigner.verify(dataXml)) {
+            if (dataSigned && !envelopedSigner.verify(dataXml)) {
                 throw new XMLFault("<data> has invalid signature.");
             }
             log.debug("<data> verified.");
