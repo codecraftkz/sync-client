@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>kz.gov.egg</groupId>
     <artifactId>sync-client</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2</version>
     <name>E-gov Gateway Client</name>
 
     <properties>
@@ -59,8 +59,8 @@
         </dependency>
         <dependency>
             <groupId>kz.gov.services.gbd</groupId>
-            <artifactId>unifl</artifactId>
-            <version>20231026</version>
+            <artifactId>unifl-token</artifactId>
+            <version>20240822</version>
         </dependency>
         <dependency>
             <groupId>kz.gov.services.gbd</groupId>
