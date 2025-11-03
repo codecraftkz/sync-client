@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>kz.gov.egg</groupId>
     <artifactId>sync-client</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
     <name>E-gov Gateway Client</name>
 
     <properties>

@@ -93,7 +93,7 @@ public class EnvelopedSigner {
             if (verifyCert == null) {
                 throw new IllegalStateException("Certificate not found in XML");
             }
-            return signature.checkSignatureValue(cert);
+            return signature.checkSignatureValue(verifyCert);
         } catch (XMLSecurityException e) {
             throw new RuntimeException("Enveloped xml verification failed.", e);
         }
