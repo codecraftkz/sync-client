@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
         <lombok.version>1.18.30</lombok.version>
-        <cxf.version>4.0.3</cxf.version>
+        <cxf.version>4.0.9</cxf.version>
         <bind-api.version>3.0.1</bind-api.version>
     </properties>
 
@@ -31,6 +31,12 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
             <version>${cxf.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
